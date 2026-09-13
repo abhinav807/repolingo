@@ -184,7 +184,7 @@ async function callAnthropic(apiKey: string, userMessage: string): Promise<strin
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 4096,
         system: SYSTEM_PROMPT,
         messages: [{ role: "user", content: userMessage }],
@@ -218,7 +218,7 @@ async function callOpenAi(apiKey: string, userMessage: string): Promise<string> 
 async function callGemini(apiKey: string, userMessage: string): Promise<string> {
   return callWithRetry(
     () => fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -265,7 +265,7 @@ async function callOpenRouter(apiKey: string, userMessage: string): Promise<stri
         "X-Title": "Repolingo",
       },
       body: JSON.stringify({
-        model: "anthropic/claude-sonnet-4",
+        model: "meta-llama/llama-3.3-70b-instruct",
         max_tokens: 4096,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -286,7 +286,7 @@ async function callTogether(apiKey: string, userMessage: string): Promise<string
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "meta-llama/Llama-3-70b-chat-hf",
+        model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         max_tokens: 4096,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
