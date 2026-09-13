@@ -137,13 +137,27 @@ Rules:
 
 // ---------------------------------------------------------------------------
 // LLM call (BYOK — key is per-request, never stored)
-// Currently supports Anthropic's Messages API format.
 // ---------------------------------------------------------------------------
 
+type Provider = "claude" | "openai" | "gemini" | "groq" | "openrouter" | "together";
+
 async function callLlmKeyed(
+  provider: Provider,
   apiKey: string,
   userMessage: string
 ): Promise<string> {
+  const handlers: Record<Provider, () => Promise<string>> = {
+    claude: () => callAnthropic(apiKey, userMessage),
+    openai: () => callOpenAi(apiKey, userMessage),
+    gemini: () => callGemini(apiKey, userMessage),
+    groq: () => callGroq(apiKey, userMessage),
+    openrouter: () => callOpenRouter(apiKey, userMessage),
+    together: () => callTogether(apiKey, userMessage),
+  };
+  return handlers[provider]();
+}
+
+async function callAnthropic(apiKey: string, userMessage: string): Promise<string> {
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -158,20 +172,113 @@ async function callLlmKeyed(
       messages: [{ role: "user", content: userMessage }],
     }),
   });
+  return handleProviderResponse(res, (d) => d.content?.[0]?.text);
+}
 
-  if (res.status === 401) {
-    throw new Error("INVALID_KEY");
-  }
-  if (res.status === 429) {
-    throw new Error("LLM_RATE_LIMITED");
-  }
+async function callOpenAi(apiKey: string, userMessage: string): Promise<string> {
+  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "gpt-4o",
+      max_tokens: 4096,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+    }),
+  });
+  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+}
+
+async function callGemini(apiKey: string, userMessage: string): Promise<string> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [{ parts: [{ text: userMessage }] }],
+        generationConfig: { maxOutputTokens: 4096 },
+      }),
+    }
+  );
+  return handleProviderResponse(res, (d) => d.candidates?.[0]?.content?.parts?.[0]?.text);
+}
+
+async function callGroq(apiKey: string, userMessage: string): Promise<string> {
+  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "llama-3.3-70b-versatile",
+      max_tokens: 4096,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+    }),
+  });
+  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+}
+
+async function callOpenRouter(apiKey: string, userMessage: string): Promise<string> {
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+      "HTTP-Referer": "https://repolingo.vercel.app",
+      "X-Title": "Repolingo",
+    },
+    body: JSON.stringify({
+      model: "anthropic/claude-sonnet-4",
+      max_tokens: 4096,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+    }),
+  });
+  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+}
+
+async function callTogether(apiKey: string, userMessage: string): Promise<string> {
+  const res = await fetch("https://api.together.xyz/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: "meta-llama/Llama-3-70b-chat-hf",
+      max_tokens: 4096,
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage },
+      ],
+    }),
+  });
+  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function handleProviderResponse(res: Response, extractText: (data: any) => string | undefined): Promise<string> {
+  if (res.status === 401) throw new Error("INVALID_KEY");
+  if (res.status === 429) throw new Error("LLM_RATE_LIMITED");
   if (!res.ok) {
     const errBody = await res.text().catch(() => "");
     throw new Error(`LLM_ERROR_${res.status}: ${errBody.slice(0, 200)}`);
   }
-
   const data = await res.json();
-  const text = data.content?.[0]?.text;
+  const text = extractText(data);
   if (!text) throw new Error("LLM_EMPTY_RESPONSE");
   return text;
 }
@@ -226,6 +333,8 @@ export async function POST(request: NextRequest) {
     // Validate and accept only expected fields (block field tampering)
     const repoUrl = body?.repoUrl;
     const apiKey = body?.apiKey;
+    const provider: Provider = body?.provider;
+    const validProviders: Provider[] = ["claude", "openai", "gemini", "groq", "openrouter", "together"];
     if (!repoUrl || typeof repoUrl !== "string") {
       return NextResponse.json(
         { error: "MISSING_REPO_URL", details: "Provide a valid repoUrl." },
@@ -236,7 +345,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "MISSING_API_KEY",
-          details: "An API key is required. Use any compatible provider key.",
+          details: "An API key is required.",
         },
         { status: 400 }
       );
@@ -246,6 +355,15 @@ export async function POST(request: NextRequest) {
         {
           error: "INVALID_KEY_FORMAT",
           details: "API key is too short. Check your key and try again.",
+        },
+        { status: 400 }
+      );
+    }
+    if (!provider || !validProviders.includes(provider)) {
+      return NextResponse.json(
+        {
+          error: "INVALID_PROVIDER",
+          details: "Select a valid provider: claude, openai, gemini, groq, openrouter, or together.",
         },
         { status: 400 }
       );
@@ -365,7 +483,7 @@ export async function POST(request: NextRequest) {
 
     let rawLlm: string;
     try {
-      rawLlm = await callLlmKeyed(apiKey, userMessage);
+      rawLlm = await callLlmKeyed(provider, apiKey, userMessage);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg === "INVALID_KEY") {

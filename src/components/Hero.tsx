@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import ProviderSelector, { PROVIDERS, type Provider } from "./ProviderSelector";
 
 interface Props {
-  onSubmit: (url: string, apiKey: string) => void;
+  onSubmit: (url: string, apiKey: string, provider: Provider) => void;
   isLoading: boolean;
 }
 
 export default function Hero({ onSubmit, isLoading }: Props) {
   const [url, setUrl] = useState("");
+  const [provider, setProvider] = useState<Provider | null>(null);
   const [apiKey, setApiKey] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("llm_api_key") || "";
@@ -18,6 +20,8 @@ export default function Hero({ onSubmit, isLoading }: Props) {
   const [showKey, setShowKey] = useState(false);
   const [urlError, setUrlError] = useState("");
   const [keyError, setKeyError] = useState("");
+
+  const providerInfo = PROVIDERS.find((p) => p.id === provider);
 
   const URL_REGEX =
     /^(?:https?:\/\/)?(?:www\.)?github\.com\/[\w.-]+\/[\w.-]+\/?$/;
@@ -40,11 +44,14 @@ export default function Hero({ onSubmit, isLoading }: Props) {
 
     let valid = true;
 
-    if (!apiKey.trim()) {
-      setKeyError("API KEY REQUIRED — enter your Anthropic, OpenAI, or compatible key");
+    if (!provider) {
+      setKeyError("SELECT A PROVIDER FIRST");
       valid = false;
-    } else if (apiKey.trim().length < 10) {
-      setKeyError("KEY TOO SHORT — CHECK YOUR KEY");
+    } else if (!apiKey.trim()) {
+      setKeyError(`API KEY REQUIRED — GET ONE AT ${providerInfo?.hint}`);
+      valid = false;
+    } else if (providerInfo?.prefix && !apiKey.startsWith(providerInfo.prefix)) {
+      setKeyError(`KEY SHOULD START WITH "${providerInfo.prefix}" — CHECK YOUR KEY`);
       valid = false;
     }
 
@@ -57,7 +64,8 @@ export default function Hero({ onSubmit, isLoading }: Props) {
     if (!valid) return;
 
     sessionStorage.setItem("llm_api_key", apiKey.trim());
-    onSubmit(normalized, apiKey.trim());
+    sessionStorage.setItem("llm_provider", provider!);
+    onSubmit(normalized, apiKey.trim(), provider!);
   }
 
   return (
@@ -82,75 +90,87 @@ export default function Hero({ onSubmit, isLoading }: Props) {
             generate a plain-English onboarding doc in seconds.
           </p>
 
-          <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-3">
-            {/* API Key Input */}
+          <form onSubmit={handleSubmit} className="w-full max-w-2xl space-y-4">
+            {/* Repo URL Input */}
             <div>
               <label className="block font-[family-name:var(--font-mono)] text-xs font-bold uppercase tracking-wider mb-2 opacity-60">
-                YOUR API KEY
+                GITHUB REPO URL
               </label>
-              <div className="relative">
-                <input
-                  type={showKey ? "text" : "password"}
-                  value={apiKey}
-                  onChange={(e) => {
-                    setApiKey(e.target.value);
-                    if (keyError) setKeyError("");
-                  }}
-                  placeholder="sk-... or any provider key"
-                  className={`input-brutal pr-16 ${keyError ? "input-error" : ""}`}
-                  disabled={isLoading}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowKey(!showKey)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 font-[family-name:var(--font-mono)] text-xs font-bold opacity-50 hover:opacity-100"
-                  tabIndex={-1}
-                >
-                  {showKey ? "HIDE" : "SHOW"}
-                </button>
-              </div>
-              {keyError && (
+              <input
+                type="text"
+                value={url}
+                onChange={(e) => {
+                  setUrl(e.target.value);
+                  if (urlError) setUrlError("");
+                }}
+                placeholder="https://github.com/owner/repo"
+                className={`input-brutal ${urlError ? "input-error" : ""}`}
+                disabled={isLoading}
+                autoComplete="off"
+                spellCheck={false}
+              />
+              {urlError && (
                 <p className="mt-2 font-[family-name:var(--font-mono)] text-xs text-[var(--color-error)] font-bold">
-                  {keyError}
+                  {urlError}
                 </p>
               )}
-              <p className="mt-1 font-[family-name:var(--font-mono)] text-[10px] opacity-40">
-                WORKS WITH ANTHROPIC, OPENAI, OPENROUTER, OR ANY COMPATIBLE API KEY &middot; NEVER STORED &middot; CLEARED ON TAB CLOSE
-              </p>
             </div>
 
-            {/* Repo URL Input */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
-                <input
-                  type="text"
-                  value={url}
-                  onChange={(e) => {
-                    setUrl(e.target.value);
-                    if (urlError) setUrlError("");
-                  }}
-                  placeholder="https://github.com/owner/repo"
-                  className={`input-brutal ${urlError ? "input-error" : ""}`}
-                  disabled={isLoading}
-                  autoComplete="off"
-                  spellCheck={false}
-                />
-                {urlError && (
+            {/* Provider Selector */}
+            <ProviderSelector selected={provider} onSelect={(p) => {
+              setProvider(p);
+              setApiKey("");
+              setKeyError("");
+            }} />
+
+            {/* API Key Input */}
+            {provider && (
+              <div>
+                <label className="block font-[family-name:var(--font-mono)] text-xs font-bold uppercase tracking-wider mb-2 opacity-60">
+                  {providerInfo?.name} API KEY
+                </label>
+                <div className="relative">
+                  <input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => {
+                      setApiKey(e.target.value);
+                      if (keyError) setKeyError("");
+                    }}
+                    placeholder={providerInfo?.placeholder}
+                    className={`input-brutal pr-16 ${keyError ? "input-error" : ""}`}
+                    disabled={isLoading}
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowKey(!showKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 font-[family-name:var(--font-mono)] text-xs font-bold opacity-50 hover:opacity-100"
+                    tabIndex={-1}
+                  >
+                    {showKey ? "HIDE" : "SHOW"}
+                  </button>
+                </div>
+                {keyError && (
                   <p className="mt-2 font-[family-name:var(--font-mono)] text-xs text-[var(--color-error)] font-bold">
-                    {urlError}
+                    {keyError}
                   </p>
                 )}
+                <p className="mt-1 font-[family-name:var(--font-mono)] text-[10px] opacity-40">
+                  GET ONE AT {providerInfo?.hint} &middot; NEVER STORED SERVER-SIDE &middot; CLEARED ON TAB CLOSE
+                </p>
               </div>
-              <button
-                type="submit"
-                disabled={isLoading || !url.trim() || !apiKey.trim()}
-                className="btn-brutal btn-brutal-accent shrink-0 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[var(--shadow-brutal-sm)]"
-              >
-                {isLoading ? "ANALYZING..." : "ANALYZE REPO →"}
-              </button>
-            </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading || !url.trim() || !apiKey.trim() || !provider}
+              className="btn-brutal btn-brutal-accent w-full sm:w-auto disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[var(--shadow-brutal-sm)]"
+            >
+              {isLoading ? "ANALYZING..." : "ANALYZE REPO →"}
+            </button>
           </form>
         </div>
       </div>

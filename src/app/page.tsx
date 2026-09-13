@@ -10,26 +10,28 @@ import ErrorState from "@/components/ErrorState";
 import EmptyState from "@/components/EmptyState";
 import Toast from "@/components/Toast";
 import Footer from "@/components/Footer";
+import CookieBanner from "@/components/CookieBanner";
 import type { AnalyzeResponse } from "@/lib/types";
+import type { Provider } from "@/components/ProviderSelector";
 
 type AppState =
   | { status: "idle" }
   | { status: "loading"; repoUrl: string }
   | { status: "success"; data: AnalyzeResponse }
-  | { status: "error"; message: string; details?: string; retryUrl?: string; retryKey?: string };
+  | { status: "error"; message: string; details?: string; retryUrl?: string; retryKey?: string; retryProvider?: Provider };
 
 export default function Home() {
   const [state, setState] = useState<AppState>({ status: "idle" });
   const [toast, setToast] = useState<string | null>(null);
 
-  const handleSubmit = useCallback(async (url: string, apiKey: string) => {
+  const handleSubmit = useCallback(async (url: string, apiKey: string, provider: Provider) => {
     setState({ status: "loading", repoUrl: url });
 
     try {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl: url, apiKey }),
+        body: JSON.stringify({ repoUrl: url, apiKey, provider }),
       });
 
       const data = await res.json();
@@ -56,6 +58,7 @@ export default function Home() {
           details: data.details,
           retryUrl: url,
           retryKey: apiKey,
+          retryProvider: provider,
         });
         return;
       }
@@ -68,6 +71,7 @@ export default function Home() {
         details: "Could not reach the server. Check your connection and try again.",
         retryUrl: url,
         retryKey: apiKey,
+        retryProvider: provider,
       });
     }
   }, []);
@@ -81,8 +85,8 @@ export default function Home() {
   }, []);
 
   const handleRetry = useCallback(() => {
-    if (state.status === "error" && state.retryUrl && state.retryKey) {
-      handleSubmit(state.retryUrl, state.retryKey);
+    if (state.status === "error" && state.retryUrl && state.retryKey && state.retryProvider) {
+      handleSubmit(state.retryUrl, state.retryKey, state.retryProvider);
     }
   }, [state, handleSubmit]);
 
@@ -137,6 +141,7 @@ export default function Home() {
       )}
 
       <Footer />
+      <CookieBanner />
 
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
     </div>
