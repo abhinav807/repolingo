@@ -18,23 +18,17 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <div className="hidden sm:flex items-center gap-6">
-          <a
-            href="#how-it-works"
-            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100"
+          <Link
+            href="/how-it-works"
+            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100 no-underline"
           >
             HOW IT WORKS
-          </a>
+          </Link>
           <a
-            href="#examples"
-            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100"
-          >
-            EXAMPLES
-          </a>
-          <a
-            href="https://github.com"
+            href="https://github.com/abhinav807/repolingo"
             target="_blank"
             rel="noopener noreferrer"
-            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100"
+            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100 no-underline"
           >
             GITHUB
           </a>
@@ -68,25 +62,18 @@ export default function Navbar() {
       {mobileOpen && (
         <div className="sm:hidden border-t-[3px] border-[var(--color-foreground)] bg-[var(--color-background)]">
           <div className="px-4 py-4 space-y-3">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/how-it-works"
               onClick={() => setMobileOpen(false)}
-              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)]"
+              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)] no-underline"
             >
               HOW IT WORKS
-            </a>
+            </Link>
             <a
-              href="#examples"
-              onClick={() => setMobileOpen(false)}
-              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)]"
-            >
-              EXAMPLES
-            </a>
-            <a
-              href="https://github.com"
+              href="https://github.com/abhinav807/repolingo"
               target="_blank"
               rel="noopener noreferrer"
-              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)]"
+              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)] no-underline"
             >
               GITHUB
             </a>

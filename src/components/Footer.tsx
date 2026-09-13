@@ -17,12 +17,12 @@ export default function Footer() {
       <div className="bg-[var(--color-background)] border-b-[3px] border-[var(--color-foreground)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            <a
-              href="#how-it-works"
-              className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
+            <Link
+              href="/how-it-works"
+              className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors no-underline"
             >
               HOW IT WORKS
-            </a>
+            </Link>
             <Link
               href="/privacy"
               className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
