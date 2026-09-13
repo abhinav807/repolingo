@@ -1,26 +1,182 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #FAFAFA;
+  --color-foreground: #0A0A0A;
+  --color-accent: #D4FF3F;
+  --color-accent-dark: #b8e036;
+  --color-error: #FF3333;
+  --color-border: #0A0A0A;
+  --color-card: #FAFAFA;
+  --color-muted: #E5E5E5;
+
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  --shadow-brutal: 6px 6px 0px #0A0A0A;
+  --shadow-brutal-sm: 4px 4px 0px #0A0A0A;
+  --shadow-none: 0 0 0 #0A0A0A;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes loadRotate1 {
+  0%, 100% { opacity: 1; }
+  25% { opacity: 0; }
+}
+
+@keyframes loadRotate2 {
+  0%, 25% { opacity: 0; }
+  26%, 50% { opacity: 1; }
+  51% { opacity: 0; }
+}
+
+@keyframes loadRotate3 {
+  0%, 50% { opacity: 0; }
+  51%, 75% { opacity: 1; }
+  76% { opacity: 0; }
+}
+
+@keyframes loadRotate4 {
+  0%, 75% { opacity: 0; }
+  76%, 100% { opacity: 1; }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-load-1 { animation: loadRotate1 6s linear infinite; }
+.animate-load-2 { animation: loadRotate2 6s linear infinite; }
+.animate-load-3 { animation: loadRotate3 6s linear infinite; }
+.animate-load-4 { animation: loadRotate4 6s linear infinite; }
+
+.btn-brutal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 3px solid var(--color-foreground);
+  background: var(--color-foreground);
+  color: var(--color-background);
+  box-shadow: var(--shadow-brutal);
+  cursor: pointer;
+  transition: none;
+  text-decoration: none;
+  user-select: none;
+}
+
+.btn-brutal:hover {
+  transform: translate(6px, 6px);
+  box-shadow: var(--shadow-none);
+}
+
+.btn-brutal:active {
+  transform: translate(6px, 6px);
+  box-shadow: var(--shadow-none);
+}
+
+.btn-brutal-accent {
+  background: var(--color-accent);
+  color: var(--color-foreground);
+  border-color: var(--color-foreground);
+  box-shadow: var(--shadow-brutal);
+}
+
+.btn-brutal-accent:hover {
+  background: var(--color-foreground);
+  color: var(--color-accent);
+  transform: translate(6px, 6px);
+  box-shadow: var(--shadow-none);
+}
+
+.card-brutal {
+  border: 3px solid var(--color-foreground);
+  background: var(--color-card);
+  box-shadow: var(--shadow-brutal-sm);
+}
+
+.input-brutal {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  border: 3px solid var(--color-foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  outline: none;
+  box-shadow: var(--shadow-brutal-sm);
+}
+
+.input-brutal::placeholder {
+  color: #999;
+}
+
+.input-brutal:focus {
+  box-shadow: var(--shadow-brutal);
+}
+
+.input-brutal.input-error {
+  border-color: var(--color-error);
+  box-shadow: 4px 4px 0px var(--color-error);
+}
+
+.badge-brutal {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 2px solid var(--color-foreground);
+  background: var(--color-background);
+}
+
+.sticker {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 2px solid var(--color-foreground);
+  background: var(--color-accent);
+}
+
+.sticker-rotate-1 { transform: rotate(-6deg); }
+.sticker-rotate-2 { transform: rotate(4deg); }
+.sticker-rotate-3 { transform: rotate(-2deg); }
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-foreground);
 }
