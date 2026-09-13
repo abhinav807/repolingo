@@ -157,29 +157,46 @@ async function callLlmKeyed(
   return handlers[provider]();
 }
 
+async function callWithRetry(
+  fn: () => Promise<Response>,
+  extractText: (d: any) => string | undefined, // eslint-disable-line @typescript-eslint/no-explicit-any
+  maxRetries = 2
+): Promise<string> {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    if (attempt > 0) {
+      const delay = Math.min(2000 * Math.pow(2, attempt - 1), 10000);
+      await new Promise((r) => setTimeout(r, delay));
+    }
+    const res = await fn();
+    if (res.status === 429 && attempt < maxRetries) continue;
+    return handleProviderResponse(res, extractText);
+  }
+  throw new Error("LLM_RATE_LIMITED");
+}
+
 async function callAnthropic(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      system: SYSTEM_PROMPT,
-      messages: [{ role: "user", content: userMessage }],
+  return callWithRetry(
+    () => fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: userMessage }],
+      }),
     }),
-  });
-  return handleProviderResponse(res, (d) => d.content?.[0]?.text);
+    (d) => d.content?.[0]?.text
+  );
 }
 
 async function callOpenAi(apiKey: string, userMessage: string): Promise<string> {
-  // Retry once after a short delay — OpenAI free tier 429s are often transient
-  for (let attempt = 0; attempt < 2; attempt++) {
-    if (attempt > 0) await new Promise((r) => setTimeout(r, 3000));
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  return callWithRetry(
+    () => fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -193,86 +210,92 @@ async function callOpenAi(apiKey: string, userMessage: string): Promise<string> 
           { role: "user", content: userMessage },
         ],
       }),
-    });
-    if (res.status === 429 && attempt === 0) continue;
-    return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
-  }
-  throw new Error("LLM_RATE_LIMITED");
+    }),
+    (d) => d.choices?.[0]?.message?.content
+  );
 }
 
 async function callGemini(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [{ parts: [{ text: userMessage }] }],
-        generationConfig: { maxOutputTokens: 4096 },
-      }),
-    }
+  return callWithRetry(
+    () => fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ parts: [{ text: userMessage }] }],
+          generationConfig: { maxOutputTokens: 4096 },
+        }),
+      }
+    ),
+    (d) => d.candidates?.[0]?.content?.parts?.[0]?.text
   );
-  return handleProviderResponse(res, (d) => d.candidates?.[0]?.content?.parts?.[0]?.text);
 }
 
 async function callGroq(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      max_tokens: 4096,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage },
-      ],
+  return callWithRetry(
+    () => fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+      }),
     }),
-  });
-  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+    (d) => d.choices?.[0]?.message?.content
+  );
 }
 
 async function callOpenRouter(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-      "HTTP-Referer": "https://repolingo.vercel.app",
-      "X-Title": "Repolingo",
-    },
-    body: JSON.stringify({
-      model: "anthropic/claude-sonnet-4",
-      max_tokens: 4096,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage },
-      ],
+  return callWithRetry(
+    () => fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://repolingo.vercel.app",
+        "X-Title": "Repolingo",
+      },
+      body: JSON.stringify({
+        model: "anthropic/claude-sonnet-4",
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+      }),
     }),
-  });
-  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+    (d) => d.choices?.[0]?.message?.content
+  );
 }
 
 async function callTogether(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch("https://api.together.xyz/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "meta-llama/Llama-3-70b-chat-hf",
-      max_tokens: 4096,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage },
-      ],
+  return callWithRetry(
+    () => fetch("https://api.together.xyz/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "meta-llama/Llama-3-70b-chat-hf",
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+      }),
     }),
-  });
-  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+    (d) => d.choices?.[0]?.message?.content
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
