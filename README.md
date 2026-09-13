@@ -265,6 +265,6 @@ MIT
 
 ---
 
-> **BUILT WITH ⚡ ANTHROPIC CLAUDE + NEXT.JS**
+> **BUILT WITH LOVE**
 >
-> `© 2026 · EXPLAIN THIS REPO`
+> `© 2026 · Abhinav Goyal`
