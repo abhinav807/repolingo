@@ -491,8 +491,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: "INVALID_KEY",
-            details:
-              `That ${provider.toUpperCase()} API key was rejected. Check it's correct and has available credit.`,
+            details: `That ${provider.toUpperCase()} API key was rejected. Make sure it's correct and your account has credit.`,
           },
           { status: 401 }
         );
@@ -501,18 +500,20 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: "LLM_RATE_LIMITED",
-            details:
-              `${provider.toUpperCase()} API rate limit exceeded. Try again in a few minutes.`,
+            details: `${provider.toUpperCase()} rate limit hit. Wait a minute and try again.`,
           },
           { status: 429 }
         );
       }
+      // For LLM_ERROR_xxx, show the actual status code
       if (msg.startsWith("LLM_ERROR_")) {
-        const statusCode = msg.split("_")[2];
+        const parts = msg.split(":");
+        const code = parts[0]?.replace("LLM_ERROR_", "") || "?";
+        const body = parts.slice(1).join(":").trim().slice(0, 300);
         return NextResponse.json(
           {
             error: "LLM_FAILED",
-            details: `${provider.toUpperCase()} API returned error (${statusCode}). Check your key and try again.`,
+            details: `${provider.toUpperCase()} returned HTTP ${code}${body ? `: ${body}` : ""}`,
           },
           { status: 502 }
         );
@@ -520,7 +521,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "LLM_FAILED",
-          details: "The AI model returned an error. Please try again.",
+          details: `Unexpected error from ${provider.toUpperCase()}: ${msg.slice(0, 300)}`,
         },
         { status: 502 }
       );

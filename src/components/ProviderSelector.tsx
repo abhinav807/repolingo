@@ -22,7 +22,7 @@ export const PROVIDERS: ProviderInfo[] = [
     id: "openai",
     name: "OPENAI",
     prefix: "sk-",
-    placeholder: "sk-...",
+    placeholder: "sk-... or sk-proj-...",
     hint: "PLATFORM.OPENAI.COM",
   },
   {
