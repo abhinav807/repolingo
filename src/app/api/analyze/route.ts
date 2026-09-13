@@ -61,7 +61,7 @@ async function fetchGithub(path: string): Promise<unknown> {
 }
 
 function sampleFileTree(tree: { path: string; type: string }[]): { path: string; type: string }[] {
-  const MAX_ENTRIES = 500;
+  const MAX_ENTRIES = 300;
   if (tree.length <= MAX_ENTRIES) return tree;
 
   const root = tree.filter((t) => !t.path.includes("/"));
@@ -183,7 +183,7 @@ async function callOpenAi(apiKey: string, userMessage: string): Promise<string> 
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       max_tokens: 4096,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
@@ -474,7 +474,7 @@ export async function POST(request: NextRequest) {
       "",
       "README:",
       readmeContent
-        ? readmeContent.slice(0, 8000)
+        ? readmeContent.slice(0, 4000)
         : "(No README found)",
       "",
       "File Tree:",
