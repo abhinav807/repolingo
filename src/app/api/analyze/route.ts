@@ -176,22 +176,28 @@ async function callAnthropic(apiKey: string, userMessage: string): Promise<strin
 }
 
 async function callOpenAi(apiKey: string, userMessage: string): Promise<string> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      max_tokens: 4096,
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT },
-        { role: "user", content: userMessage },
-      ],
-    }),
-  });
-  return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+  // Retry once after a short delay — OpenAI free tier 429s are often transient
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) await new Promise((r) => setTimeout(r, 3000));
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        max_tokens: 4096,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+      }),
+    });
+    if (res.status === 429 && attempt === 0) continue;
+    return handleProviderResponse(res, (d) => d.choices?.[0]?.message?.content);
+  }
+  throw new Error("LLM_RATE_LIMITED");
 }
 
 async function callGemini(apiKey: string, userMessage: string): Promise<string> {
