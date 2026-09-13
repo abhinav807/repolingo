@@ -20,7 +20,7 @@ export const PROVIDERS: ProviderInfo[] = [
     placeholder: "gsk_...",
     hint: "CONSOLE.GROQ.COM",
     recommended: true,
-    limits: "FREE · 30 RPM · FAST",
+    limits: "FREE · 30 RPM · FASTEST",
   },
   {
     id: "claude",
