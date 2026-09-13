@@ -29,7 +29,7 @@ function checkRateLimit(ip: string): boolean {
     rateLimits.set(ip, { count: 1, resetAt: now + 3600000 });
     return true;
   }
-  if (limit.count >= 10) return false;
+  if (limit.count >= 30) return false;
   limit.count++;
   return true;
 }
@@ -486,12 +486,13 @@ export async function POST(request: NextRequest) {
       rawLlm = await callLlmKeyed(provider, apiKey, userMessage);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
+      console.error(`[analyze] provider=${provider} error: ${msg}`);
       if (msg === "INVALID_KEY") {
         return NextResponse.json(
           {
             error: "INVALID_KEY",
             details:
-              "That API key was rejected. Check it's correct and has available credit.",
+              `That ${provider.toUpperCase()} API key was rejected. Check it's correct and has available credit.`,
           },
           { status: 401 }
         );
@@ -501,12 +502,21 @@ export async function POST(request: NextRequest) {
           {
             error: "LLM_RATE_LIMITED",
             details:
-              "API rate limit exceeded. Try again in a few minutes.",
+              `${provider.toUpperCase()} API rate limit exceeded. Try again in a few minutes.`,
           },
           { status: 429 }
         );
       }
-      console.error("LLM error:", msg);
+      if (msg.startsWith("LLM_ERROR_")) {
+        const statusCode = msg.split("_")[2];
+        return NextResponse.json(
+          {
+            error: "LLM_FAILED",
+            details: `${provider.toUpperCase()} API returned error (${statusCode}). Check your key and try again.`,
+          },
+          { status: 502 }
+        );
+      }
       return NextResponse.json(
         {
           error: "LLM_FAILED",
