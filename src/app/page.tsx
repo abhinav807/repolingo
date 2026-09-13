@@ -29,7 +29,7 @@ export default function Home() {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ repoUrl: url, anthropicKey: apiKey }),
+        body: JSON.stringify({ repoUrl: url, apiKey }),
       });
 
       const data = await res.json();
@@ -40,8 +40,8 @@ export default function Home() {
             ? "REPO NOT FOUND"
             : data.error === "INVALID_KEY" || data.error === "INVALID_KEY_FORMAT"
             ? "INVALID API KEY"
-            : data.error === "ANTHROPIC_RATE_LIMITED"
-            ? "ANTHROPIC RATE LIMITED"
+            : data.error === "LLM_RATE_LIMITED"
+            ? "API RATE LIMITED"
             : data.error === "RATE_LIMITED" || data.error === "GITHUB_RATE_LIMITED"
             ? "TOO MANY REQUESTS"
             : data.error === "LLM_FAILED"

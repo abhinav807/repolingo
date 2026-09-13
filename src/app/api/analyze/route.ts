@@ -136,10 +136,11 @@ Rules:
 - Output ONLY valid JSON matching the schema above, nothing else.`;
 
 // ---------------------------------------------------------------------------
-// Anthropic call (BYOK — key is per-request, never stored)
+// LLM call (BYOK — key is per-request, never stored)
+// Currently supports Anthropic's Messages API format.
 // ---------------------------------------------------------------------------
 
-async function callAnthropicKeyed(
+async function callLlmKeyed(
   apiKey: string,
   userMessage: string
 ): Promise<string> {
@@ -162,7 +163,7 @@ async function callAnthropicKeyed(
     throw new Error("INVALID_KEY");
   }
   if (res.status === 429) {
-    throw new Error("ANTHROPIC_RATE_LIMITED");
+    throw new Error("LLM_RATE_LIMITED");
   }
   if (!res.ok) {
     const errBody = await res.text().catch(() => "");
@@ -224,27 +225,27 @@ export async function POST(request: NextRequest) {
 
     // Validate and accept only expected fields (block field tampering)
     const repoUrl = body?.repoUrl;
-    const anthropicKey = body?.anthropicKey;
+    const apiKey = body?.apiKey;
     if (!repoUrl || typeof repoUrl !== "string") {
       return NextResponse.json(
         { error: "MISSING_REPO_URL", details: "Provide a valid repoUrl." },
         { status: 400 }
       );
     }
-    if (!anthropicKey || typeof anthropicKey !== "string") {
+    if (!apiKey || typeof apiKey !== "string") {
       return NextResponse.json(
         {
           error: "MISSING_API_KEY",
-          details: "An Anthropic API key is required. Get one free at console.anthropic.com.",
+          details: "An API key is required. Use any compatible provider key.",
         },
         { status: 400 }
       );
     }
-    if (!anthropicKey.startsWith("sk-ant-")) {
+    if (apiKey.trim().length < 10) {
       return NextResponse.json(
         {
           error: "INVALID_KEY_FORMAT",
-          details: "Anthropic API keys start with sk-ant-. Check your key and try again.",
+          details: "API key is too short. Check your key and try again.",
         },
         { status: 400 }
       );
@@ -364,7 +365,7 @@ export async function POST(request: NextRequest) {
 
     let rawLlm: string;
     try {
-      rawLlm = await callAnthropicKeyed(anthropicKey, userMessage);
+      rawLlm = await callLlmKeyed(apiKey, userMessage);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       if (msg === "INVALID_KEY") {
@@ -377,12 +378,12 @@ export async function POST(request: NextRequest) {
           { status: 401 }
         );
       }
-      if (msg === "ANTHROPIC_RATE_LIMITED") {
+      if (msg === "LLM_RATE_LIMITED") {
         return NextResponse.json(
           {
-            error: "ANTHROPIC_RATE_LIMITED",
+            error: "LLM_RATE_LIMITED",
             details:
-              "Anthropic API rate limit exceeded. Try again in a few minutes.",
+              "API rate limit exceeded. Try again in a few minutes.",
           },
           { status: 429 }
         );

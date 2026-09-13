@@ -11,7 +11,7 @@ export default function Hero({ onSubmit, isLoading }: Props) {
   const [url, setUrl] = useState("");
   const [apiKey, setApiKey] = useState(() => {
     if (typeof window !== "undefined") {
-      return sessionStorage.getItem("anthropic_api_key") || "";
+      return sessionStorage.getItem("llm_api_key") || "";
     }
     return "";
   });
@@ -41,10 +41,10 @@ export default function Hero({ onSubmit, isLoading }: Props) {
     let valid = true;
 
     if (!apiKey.trim()) {
-      setKeyError("API KEY REQUIRED — get one free at console.anthropic.com");
+      setKeyError("API KEY REQUIRED — enter your Anthropic, OpenAI, or compatible key");
       valid = false;
-    } else if (!apiKey.startsWith("sk-ant-")) {
-      setKeyError("ANTHROPIC KEYS START WITH sk-ant- — CHECK YOUR KEY");
+    } else if (apiKey.trim().length < 10) {
+      setKeyError("KEY TOO SHORT — CHECK YOUR KEY");
       valid = false;
     }
 
@@ -56,7 +56,7 @@ export default function Hero({ onSubmit, isLoading }: Props) {
 
     if (!valid) return;
 
-    sessionStorage.setItem("anthropic_api_key", apiKey.trim());
+    sessionStorage.setItem("llm_api_key", apiKey.trim());
     onSubmit(normalized, apiKey.trim());
   }
 
@@ -86,7 +86,7 @@ export default function Hero({ onSubmit, isLoading }: Props) {
             {/* API Key Input */}
             <div>
               <label className="block font-[family-name:var(--font-mono)] text-xs font-bold uppercase tracking-wider mb-2 opacity-60">
-                YOUR ANTHROPIC API KEY
+                YOUR API KEY
               </label>
               <div className="relative">
                 <input
@@ -96,7 +96,7 @@ export default function Hero({ onSubmit, isLoading }: Props) {
                     setApiKey(e.target.value);
                     if (keyError) setKeyError("");
                   }}
-                  placeholder="sk-ant-..."
+                  placeholder="sk-... or any provider key"
                   className={`input-brutal pr-16 ${keyError ? "input-error" : ""}`}
                   disabled={isLoading}
                   autoComplete="off"
@@ -117,7 +117,7 @@ export default function Hero({ onSubmit, isLoading }: Props) {
                 </p>
               )}
               <p className="mt-1 font-[family-name:var(--font-mono)] text-[10px] opacity-40">
-                GET ONE FREE AT CONSOLE.ANTHROPIC.COM &middot; NEVER STORED SERVER-SIDE &middot; CLEARED WHEN YOU CLOSE THIS TAB
+                WORKS WITH ANTHROPIC, OPENAI, OPENROUTER, OR ANY COMPATIBLE API KEY &middot; NEVER STORED &middot; CLEARED ON TAB CLOSE
               </p>
             </div>
 

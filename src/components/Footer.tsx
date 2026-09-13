@@ -36,7 +36,7 @@ export default function Footer() {
               TERMS
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/abhinav807/repolingo"
               target="_blank"
               rel="noopener noreferrer"
               className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
@@ -45,7 +45,7 @@ export default function Footer() {
             </a>
           </div>
           <p className="font-[family-name:var(--font-mono)] text-xs text-[var(--color-foreground)] opacity-60">
-            &copy; {year} &middot; BUILT WITH ANTHROPIC CLAUDE
+            &copy; {year} &middot; BUILT BY ABHINAV GOYAL
           </p>
         </div>
       </div>

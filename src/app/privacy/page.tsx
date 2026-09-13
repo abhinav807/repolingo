@@ -19,8 +19,8 @@ export default function PrivacyPage() {
               YOUR API KEY
             </h2>
             <p>
-              Your Anthropic API key is entered in your browser and sent directly to our server
-              over HTTPS for a single request. It is used to call the Anthropic API on your behalf,
+              Your API key is entered in your browser and sent directly to our server
+              over HTTPS for a single request. It is used to call the LLM API on your behalf,
               then immediately discarded. We never store your API key in a database, log it,
               cache it, or transmit it to any third party.
             </p>

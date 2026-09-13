@@ -42,8 +42,8 @@ export default function TermsPage() {
               API COSTS
             </h2>
             <p>
-              You supply your own Anthropic API key. You are solely responsible for any charges
-              incurred from Anthropic as a result of using this tool. This application does not
+              You supply your own API key. You are solely responsible for any charges
+              incurred from your LLM provider as a result of using this tool. This application does not
               charge you any fees.
             </p>
           </section>
