@@ -10,7 +10,13 @@ interface Props {
 
 export default function Hero({ onSubmit, isLoading }: Props) {
   const [url, setUrl] = useState("");
-  const [provider, setProvider] = useState<Provider | null>(null);
+  const [provider, setProvider] = useState<Provider | null>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("llm_provider");
+      if (saved) return saved as Provider;
+    }
+    return null;
+  });
   const [apiKey, setApiKey] = useState(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("llm_api_key") || "";
@@ -118,9 +124,11 @@ export default function Hero({ onSubmit, isLoading }: Props) {
 
             {/* Provider Selector */}
             <ProviderSelector selected={provider} onSelect={(p) => {
+              if (p !== provider) {
+                setApiKey("");
+                setKeyError("");
+              }
               setProvider(p);
-              setApiKey("");
-              setKeyError("");
             }} />
 
             {/* API Key Input */}
