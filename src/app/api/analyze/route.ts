@@ -261,7 +261,7 @@ async function callOpenRouter(apiKey: string, userMessage: string): Promise<stri
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": "https://repolingo.vercel.app",
+        "HTTP-Referer": "https://repolingo-three.vercel.app",
         "X-Title": "Repolingo",
       },
       body: JSON.stringify({

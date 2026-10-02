@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: "/api/",
       },
     ],
-    sitemap: "https://repolingo.vercel.app/sitemap.xml",
+    sitemap: "https://repolingo-three.vercel.app/sitemap.xml",
   };
 }

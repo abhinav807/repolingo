@@ -22,7 +22,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://repolingo.vercel.app"),
+  metadataBase: new URL("https://repolingo-three.vercel.app"),
   title: {
     default: "EXPLAIN THIS REPO — Paste a Repo, Get the TL;DR",
     template: "%s · EXPLAIN THIS REPO",

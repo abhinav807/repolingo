@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = "https://repolingo.vercel.app";
+  const base = "https://repolingo-three.vercel.app";
   return [
     { url: base, lastModified: new Date(), changeFrequency: "monthly", priority: 1 },
     { url: `${base}/how-it-works`, lastModified: new Date(), changeFrequency: "yearly", priority: 0.7 },
