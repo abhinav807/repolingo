@@ -24,6 +24,12 @@ export default function Navbar() {
           >
             HOW IT WORKS
           </Link>
+          <Link
+            href="/support"
+            className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors duration-100 no-underline"
+          >
+            SUPPORT ♥
+          </Link>
           <a
             href="https://github.com/abhinav807/repolingo"
             target="_blank"
@@ -68,6 +74,13 @@ export default function Navbar() {
               className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)] no-underline"
             >
               HOW IT WORKS
+            </Link>
+            <Link
+              href="/support"
+              onClick={() => setMobileOpen(false)}
+              className="block font-[family-name:var(--font-display)] font-bold text-sm uppercase tracking-wider text-[var(--color-foreground)] no-underline"
+            >
+              SUPPORT ♥
             </Link>
             <a
               href="https://github.com/abhinav807/repolingo"

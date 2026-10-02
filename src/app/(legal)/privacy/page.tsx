@@ -63,6 +63,18 @@ export default function PrivacyPage() {
 
           <section>
             <h2 className="font-[family-name:var(--font-display)] font-black text-xl uppercase tracking-tight mb-3">
+              PAYMENTS
+            </h2>
+            <p>
+              Support payments are handled entirely by the user&apos;s UPI app and bank.
+              Repolingo never sees or stores any payment details — no card numbers, no
+              bank details, no transaction records. Scanning the QR on our Support page
+              sends your money directly to us via your own UPI provider.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-[family-name:var(--font-display)] font-black text-xl uppercase tracking-tight mb-3">
               CONTACT
             </h2>
             <p>

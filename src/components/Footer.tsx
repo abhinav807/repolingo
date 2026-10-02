@@ -41,6 +41,12 @@ export default function Footer() {
             >
               THANK YOU
             </Link>
+            <Link
+              href="/support"
+              className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              SUPPORT
+            </Link>
             <a
               href="mailto:codanzaprivatelimited@gmail.com"
               className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
