@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy · EXPLAIN THIS REPO",
+  title: "Privacy Policy",
   description: "How Explain This Repo handles your data and API keys.",
 };
 
@@ -49,9 +49,15 @@ export default function PrivacyPage() {
               ANALYTICS
             </h2>
             <p>
-              This application does not use any analytics, tracking cookies, or third-party
-              telemetry. There are no tracking scripts, no advertising pixels, and no behavioral
-              data collection of any kind.
+              We use Vercel Web Analytics to count anonymous page views (which pages are
+              visited and from which country/referrer). It uses no cookies, sets no
+              persistent identifiers, and does not track you across sites or build any
+              profile of you. There are no advertising pixels and no third-party behavioral
+              tracking of any kind.
+            </p>
+            <p className="mt-2">
+              No API keys, repository URLs, or generated content are ever included in
+              analytics events.
             </p>
           </section>
 
@@ -69,7 +75,7 @@ export default function PrivacyPage() {
               </a>
               {" "}or open an issue on our{" "}
               <a
-                href="https://github.com"
+                href="https://github.com/abhinav807/repolingo"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2 font-bold hover:text-[var(--color-accent)]"

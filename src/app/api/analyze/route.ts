@@ -357,7 +357,34 @@ function parseLlmResponse(raw: string): RepoAnalysis {
 
 export async function POST(request: NextRequest) {
   try {
+    // Bot protection 1: browsers always send Origin/Referer on same-origin POSTs;
+    // raw scripts and bots typically send neither.
+    const host = request.headers.get("host");
+    const origin = request.headers.get("origin");
+    const referer = request.headers.get("referer");
+    let sourceHost: string | null = null;
+    try {
+      if (origin && origin !== "null") sourceHost = new URL(origin).host;
+      else if (referer) sourceHost = new URL(referer).host;
+    } catch {
+      sourceHost = null;
+    }
+    if (!sourceHost || (host && sourceHost !== host)) {
+      return NextResponse.json(
+        { error: "BOT_DETECTED", details: "Requests must come from this site." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
+
+    // Bot protection 2: honeypot — humans never fill a "website" field on this form.
+    if (typeof body?.website === "string" && body.website.trim().length > 0) {
+      return NextResponse.json(
+        { error: "BOT_DETECTED", details: "Requests must come from this site." },
+        { status: 403 }
+      );
+    }
 
     // Validate and accept only expected fields (block field tampering)
     const repoUrl = body?.repoUrl;

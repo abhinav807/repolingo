@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -21,7 +22,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://explain-this-repo.app"),
+  metadataBase: new URL("https://repolingo.vercel.app"),
   title: {
     default: "EXPLAIN THIS REPO — Paste a Repo, Get the TL;DR",
     template: "%s · EXPLAIN THIS REPO",
@@ -36,10 +37,10 @@ export const metadata: Metadata = {
     siteName: "Explain This Repo",
     images: [
       {
-        url: "/og.png",
+        url: "/og.jpg",
         width: 1200,
         height: 630,
-        alt: "Explain This Repo",
+        alt: "Explain This Repo — paste a GitHub URL, get a plain-English onboarding doc",
       },
     ],
   },
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "EXPLAIN THIS REPO",
     description: "Paste a GitHub URL. Get a plain-English onboarding doc.",
-    images: ["/og.png"],
+    images: ["/og.jpg"],
   },
 };
 
@@ -67,7 +68,10 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#0A0A0A" />
       </head>
-      <body className="min-h-screen flex flex-col">{children}</body>
+      <body className="min-h-screen flex flex-col">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }

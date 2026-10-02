@@ -66,6 +66,7 @@ export default function Home() {
       }
 
       setState({ status: "success", data });
+      setToast("ANALYSIS COMPLETE");
     } catch {
       setState({
         status: "error",
@@ -143,7 +144,7 @@ export default function Home() {
       )}
 
       <Footer />
-      <CookieBanner />
+      {state.status === "idle" && <CookieBanner />}
 
       {toast && <Toast message={toast} onDone={() => setToast(null)} />}
     </div>

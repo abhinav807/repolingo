@@ -10,7 +10,7 @@ export default function Footer() {
       <div className="bg-[var(--color-foreground)] text-[var(--color-accent)] border-y-[3px] border-[var(--color-foreground)] overflow-hidden whitespace-nowrap py-3">
         <div className="animate-marquee inline-block">
           <span className="font-[family-name:var(--font-display)] font-black text-sm uppercase tracking-[0.15em]">
-            PASTE A REPO \u00B7 GET THE TL;DR \u00B7 NO SIGNUP \u00B7 WORKS ON ANY PUBLIC REPO \u00B7 PASTE A REPO \u00B7 GET THE TL;DR \u00B7 NO SIGNUP \u00B7 WORKS ON ANY PUBLIC REPO \u00B7 PASTE A REPO \u00B7 GET THE TL;DR \u00B7 NO SIGNUP \u00B7 WORKS ON ANY PUBLIC REPO \u00B7 PASTE A REPO \u00B7 GET THE TL;DR \u00B7 NO SIGNUP \u00B7 WORKS ON ANY PUBLIC REPO \u00B7 PASTE A REPO \u00B7 GET THE TL;DR \u00B7 NO SIGNUP \u00B7 WORKS ON ANY PUBLIC REPO \u00B7{" "}
+            {"PASTE A REPO · GET THE TL;DR · NO SIGNUP · WORKS ON ANY PUBLIC REPO · ".repeat(6)}
           </span>
         </div>
       </div>
@@ -35,6 +35,18 @@ export default function Footer() {
             >
               TERMS
             </Link>
+            <Link
+              href="/thank-you"
+              className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              THANK YOU
+            </Link>
+            <a
+              href="mailto:codanzaprivatelimited@gmail.com"
+              className="font-[family-name:var(--font-display)] font-bold text-xs uppercase tracking-wider text-[var(--color-foreground)] hover:text-[var(--color-accent)] transition-colors"
+            >
+              CONTACT
+            </a>
             <a
               href="https://github.com/abhinav807/repolingo"
               target="_blank"

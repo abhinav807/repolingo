@@ -97,7 +97,6 @@ export default function ResultsDisplay({ repo, analysis, hasReadme, onReset, onC
           width={56}
           height={56}
           className="w-14 h-14 border-2 border-[var(--color-foreground)]"
-          unoptimized
         />
         <div className="flex-1 min-w-0">
           <h2 className="font-[family-name:var(--font-display)] font-black text-2xl sm:text-3xl uppercase tracking-tight truncate">

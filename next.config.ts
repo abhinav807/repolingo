@@ -12,11 +12,11 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' https://avatars.githubusercontent.com data:",
-      "connect-src 'self' https://api.github.com",
+      "connect-src 'self' https://api.github.com https://vitals.vercel-insights.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },
@@ -43,9 +43,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/api/:path*",
+        source: "/:path*",
         has: [{ type: "header", key: "x-forwarded-proto", value: "http" }],
-        destination: "https://:host/api/:path*",
+        destination: "https://:host/:path*",
         permanent: true,
       },
     ];

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms & Conditions · EXPLAIN THIS REPO",
+  title: "Terms & Conditions",
   description: "Acceptable use and disclaimers for Explain This Repo.",
 };
 

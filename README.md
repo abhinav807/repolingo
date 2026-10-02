@@ -2,15 +2,15 @@
 
 > **PASTE A REPO. GET THE TL;DR.**
 
-`[BYOK]` `[NO TRACKING]` `[OPEN SOURCE]` `[NEXT.JS]`
+`[BYOK]` `[6 PROVIDERS]` `[NO TRACKING]` `[OPEN SOURCE]` `[NEXT.JS]`
 
 ---
 
 ## WHAT IT DOES
 
-You paste a GitHub URL. We fetch the README and file structure. Claude writes you a plain-English onboarding doc. Done.
+You paste a GitHub URL. We fetch the README and file structure. Your LLM of choice writes you a plain-English onboarding doc. Done.
 
-No signup. No account. No tracking. You bring your own API key — we never see it twice.
+No signup. No account. No tracking. You bring your own API key — we never store it.
 
 ---
 
@@ -22,15 +22,17 @@ No signup. No account. No tracking. You bring your own API key — we never see 
 │   STEP 01 — PASTE                                       │
 │   Drop a GitHub URL into the input field.               │
 │                                                         │
-│   STEP 02 — KEY                                         │
-│   Enter your Anthropic API key. It stays in your tab.   │
+│   STEP 02 — PICK + KEY                                  │
+│   Choose a provider (Claude, OpenAI, Gemini, Groq,      │
+│   OpenRouter, Together) and enter your API key.          │
+│   It stays in your tab only.                            │
 │                                                         │
 │   STEP 03 — FETCH                                       │
 │   We pull repo metadata, README, and file tree from     │
 │   the GitHub API.                                        │
 │                                                         │
 │   STEP 04 — THINK                                       │
-│   Claude reads everything and writes a structured       │
+│   Your LLM reads everything and writes a structured     │
 │   onboarding doc.                                        │
 │                                                         │
 │   STEP 05 — READ                                        │
@@ -48,7 +50,7 @@ No signup. No account. No tracking. You bring your own API key — we never see 
 
 **Backend** — `NEXT.JS API ROUTES` `GITHUB REST API`
 
-**AI** — `ANTHROPIC CLAUDE` `BYOK MODEL`
+**AI** — `ANTHROPIC` `OPENAI` `GOOGLE` `GROQ` `OPENROUTER` `TOGETHER` `BYOK`
 
 **Design** — `NEO-BRUTALIST` `CUSTOM DESIGN SYSTEM`
 
@@ -60,13 +62,13 @@ No signup. No account. No tracking. You bring your own API key — we never see 
 
 - Node.js 18+
 - npm
-- An Anthropic API key ([get one free](https://console.anthropic.com))
+- An API key from any supported provider — free tier works ([Groq is free and fastest](https://console.groq.com))
 
 ### Install
 
 ```bash
-git clone https://github.com/your-org/explain-this-repo.git
-cd explain-this-repo
+git clone https://github.com/abhinav807/repolingo.git
+cd repolingo
 npm install
 ```
 
@@ -83,7 +85,7 @@ npm install
 GITHUB_TOKEN=ghp_your_token_here
 ```
 
-That's it for server config. Users supply their own Anthropic key in the browser.
+That's it for server config. Users supply their own LLM key in the browser.
 
 ### Run
 
@@ -99,45 +101,59 @@ Open `http://localhost:3000`
 
 > **CALLOUT** — This app has real attack surface. We take it seriously.
 
-- **BYOK** — Your API key never hits our database. Used once per request, then discarded.
+- **BYOK** — Your API key is never stored server-side. Used once per request, then discarded. There is no database.
 - **Anti-SSRF** — We never fetch URLs you supply. Server constructs GitHub API calls from parsed `owner/repo` only.
 - **Prompt Injection** — System prompt explicitly treats repo content as data, not instructions.
-- **Rate Limiting** — 10 requests/hour per IP on the analyze endpoint.
-- **No Cookies** — Zero tracking. No analytics. No sessions. No fingerprinting.
-- **Security Headers** — CSP, HSTS, X-Frame-Options DENY, nosniff, strict referrer.
+- **Input Validation** — Every field type-checked server-side; only expected fields accepted (field tampering blocked).
+- **XSS** — No `dangerouslySetInnerHTML` anywhere; all content rendered through React's auto-escaping.
+- **Rate Limiting** — 30 requests/hour per IP on the analyze endpoint.
+- **Bot Protection** — Origin/Referer validation plus a honeypot field on the API.
+- **No Cookies** — No tracking cookies, no sessions, no fingerprinting. Anonymous page-view analytics only (Vercel Web Analytics, cookieless).
+- **Security Headers** — CSP, HSTS (preload), X-Frame-Options DENY, nosniff, strict referrer, forced HTTPS.
+- **HTTPS Only** — HTTP is redirected to HTTPS at the edge and in app config.
 
 ---
 
 ## PROJECT STRUCTURE
 
 ```
-explain-this-repo/
+repolingo/
 ├── src/
 │   ├── app/
-│   │   ├── api/analyze/     ← server route (GitHub + LLM)
-│   │   ├── privacy/         ← privacy policy page
-│   │   ├── terms/           ← terms & conditions page
-│   │   ├── not-found.tsx    ← custom 404
-│   │   ├── layout.tsx       ← root layout + fonts
-│   │   ├── page.tsx         ← main app state machine
-│   │   ├── globals.css      ← design system tokens
-│   │   ├── robots.ts        ← SEO robots
-│   │   └── sitemap.ts       ← SEO sitemap
+│   │   ├── api/analyze/        ← server route (GitHub + multi-provider LLM)
+│   │   ├── (legal)/            ← shared layout w/ navbar for legal pages
+│   │   │   ├── privacy/        ← privacy policy page
+│   │   │   └── terms/          ← terms & conditions page
+│   │   ├── how-it-works/       ← how it works page
+│   │   ├── thank-you/          ← thank you page
+│   │   ├── not-found.tsx       ← custom 404
+│   │   ├── layout.tsx          ← root layout + fonts + analytics
+│   │   ├── page.tsx            ← main app state machine
+│   │   ├── globals.css         ← design system tokens
+│   │   ├── robots.ts           ← SEO robots
+│   │   └── sitemap.ts          ← SEO sitemap
 │   ├── components/
-│   │   ├── Navbar.tsx       ← sticky nav + mobile menu
-│   │   ├── Hero.tsx         ← input form + BYOK field
-│   │   ├── Marquee.tsx      ← scrolling ticker band
-│   │   ├── LoadingState.tsx  ← rotating status messages
-│   │   ├── ResultsDisplay.tsx ← 7-section result cards
-│   │   ├── ErrorState.tsx   ← dedicated error UI
-│   │   ├── EmptyState.tsx   ← pre-analysis placeholder
-│   │   ├── Toast.tsx        ← success/error toasts
-│   │   └── Footer.tsx       ← footer + ticker
+│   │   ├── Navbar.tsx          ← sticky nav + mobile menu
+│   │   ├── Hero.tsx            ← input form + BYOK field
+│   │   ├── ProviderSelector.tsx ← 6-provider picker w/ rate limits
+│   │   ├── Marquee.tsx         ← scrolling ticker band
+│   │   ├── LoadingState.tsx    ← rotating status messages
+│   │   ├── ResultsDisplay.tsx  ← 7-section result cards
+│   │   ├── ErrorState.tsx      ← dedicated error UI
+│   │   ├── EmptyState.tsx      ← pre-analysis placeholder
+│   │   ├── Toast.tsx           ← success/error toasts
+│   │   ├── CookieBanner.tsx    ← cookie notice
+│   │   └── Footer.tsx          ← footer + ticker
 │   └── lib/
-│       └── types.ts         ← shared TypeScript types
+│       └── types.ts            ← shared TypeScript types
 ├── public/
+│   ├── favicon.ico
+│   ├── apple-touch-icon.png
+│   ├── icon-192.png / icon-512.png
+│   ├── og.jpg                  ← Open Graph card (1200×630)
 │   └── site.webmanifest
-├── next.config.ts           ← security headers + redirects
+├── next.config.ts              ← security headers + HTTPS redirects
+├── vercel.json                 ← function timeout
 ├── .env.local.example
 └── README.md
 ```
@@ -179,7 +195,7 @@ No gradients. No border-radius. No blur. Hard offset shadows. Snap-cut hover sta
 | Variable | Required | Description |
 |---|---|---|
 | `GITHUB_TOKEN` | No | GitHub personal access token for higher API rate limits |
-| *(user supplies Anthropic key in browser)* | Yes | BYOK — Bring Your Own Key. Never stored server-side. |
+| *(user supplies LLM key in browser)* | Yes | BYOK — Bring Your Own Key. Never stored server-side. |
 
 ---
 
@@ -187,14 +203,19 @@ No gradients. No border-radius. No blur. Hard offset shadows. Snap-cut hover sta
 
 ### `POST /api/analyze`
 
+Requires browser `Origin`/`Referer` headers matching the site (bot protection).
+
 **Request Body**
 
 ```json
 {
   "repoUrl": "https://github.com/owner/repo",
-  "anthropicKey": "sk-ant-..."
+  "apiKey": "your-provider-key",
+  "provider": "groq"
 }
 ```
+
+`provider` is one of: `claude`, `openai`, `gemini`, `groq`, `openrouter`, `together`.
 
 **Success Response (200)**
 
@@ -232,16 +253,20 @@ No gradients. No border-radius. No blur. Hard offset shadows. Snap-cut hover sta
 
 | Code | Meaning |
 |---|---|
+| `BOT_DETECTED` | Request didn't originate from this site |
 | `MISSING_REPO_URL` | No repoUrl in request body |
-| `MISSING_API_KEY` | No anthropicKey in request body |
-| `INVALID_KEY_FORMAT` | Key doesn't start with sk-ant- |
+| `MISSING_API_KEY` | No apiKey in request body |
+| `INVALID_KEY_FORMAT` | Key is too short or malformed |
+| `INVALID_PROVIDER` | Unknown provider value |
+| `RATE_LIMITED` | 30 requests/hour per IP exceeded |
 | `INVALID_URL` | Can't parse owner/repo from URL |
 | `REPO_NOT_FOUND` | Repo is private or doesn't exist |
 | `GITHUB_RATE_LIMITED` | GitHub API rate limit exceeded |
-| `INVALID_KEY` | Anthropic rejected the key |
-| `ANTHROPIC_RATE_LIMITED` | Anthropic rate limit exceeded |
+| `INVALID_KEY` | The LLM provider rejected the key |
+| `LLM_RATE_LIMITED` | The LLM provider rate-limited you (429) |
 | `LLM_FAILED` | LLM call failed |
 | `PARSE_FAILED` | LLM response wasn't valid JSON |
+| `INTERNAL_ERROR` | Unexpected server error |
 
 ---
 
@@ -265,6 +290,6 @@ MIT
 
 ---
 
-> **BUILT WITH ⚡ ANTHROPIC CLAUDE + NEXT.JS**
+> **BUILT WITH ⚡ NEXT.JS + YOUR FAVORITE LLM**
 >
 > `© 2026 · EXPLAIN THIS REPO`

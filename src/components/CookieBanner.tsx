@@ -24,8 +24,8 @@ export default function CookieBanner() {
         <div className="flex-1">
           <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-background)] leading-relaxed">
             <strong className="font-[family-name:var(--font-display)] font-black uppercase">NO COOKIES USED.</strong>{" "}
-            This site uses zero tracking cookies, zero analytics, and zero fingerprinting.
-            Your API key is held in{" "}
+            Zero tracking cookies and zero fingerprinting. Anonymous page-view analytics
+            only. Your API key is held in{" "}
             <code className="font-[family-name:var(--font-mono)] text-xs bg-[var(--color-foreground)] border border-[var(--color-accent)] px-1 text-[var(--color-accent)]">
               sessionStorage
             </code>{" "}

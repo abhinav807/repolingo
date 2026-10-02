@@ -1,8 +1,28 @@
-"use client";
-
+import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "How It Works",
+  description:
+    "Three steps to understand any GitHub repo: paste a URL, we fetch the README and file tree, and your LLM generates a plain-English onboarding doc.",
+  openGraph: {
+    title: "How It Works · Explain This Repo",
+    description:
+      "Paste a URL, we fetch the repo, your LLM writes the onboarding doc. Here's exactly what happens and what you get.",
+    type: "website",
+    siteName: "Explain This Repo",
+    images: [
+      {
+        url: "/og.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Explain This Repo — paste a GitHub URL, get a plain-English onboarding doc",
+      },
+    ],
+  },
+};
 
 const STEPS = [
   {

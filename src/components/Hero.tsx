@@ -76,9 +76,9 @@ export default function Hero({ onSubmit, isLoading }: Props) {
 
   return (
     <section className="relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-12 sm:pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 sm:pt-24 pb-12 sm:pb-20">
         <div className="max-w-4xl">
-          <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3 mb-4 sm:mb-6">
             <span className="font-[family-name:var(--font-mono)] text-xs font-bold tracking-wider opacity-50">
               01 / PASTE ANY REPO
             </span>
@@ -87,11 +87,11 @@ export default function Hero({ onSubmit, isLoading }: Props) {
             <span className="sticker sticker-rotate-3">OSS-FRIENDLY</span>
           </div>
 
-          <h1 className="font-[family-name:var(--font-display)] font-black text-[clamp(2.5rem,7vw,5.5rem)] leading-[0.92] tracking-[-0.03em] uppercase mb-6">
+          <h1 className="font-[family-name:var(--font-display)] font-black text-[clamp(1.85rem,6vw,5.5rem)] leading-[0.92] tracking-[-0.03em] uppercase mb-4 sm:mb-6">
             STOP READING 40 FILES TO UNDERSTAND ONE REPO.
           </h1>
 
-          <p className="font-[family-name:var(--font-body)] text-lg sm:text-xl leading-relaxed max-w-2xl mb-10 opacity-70">
+          <p className="font-[family-name:var(--font-body)] text-base sm:text-xl leading-relaxed max-w-2xl mb-6 sm:mb-10 opacity-70">
             Paste a GitHub URL. We fetch the README and file structure, send it to an LLM, and
             generate a plain-English onboarding doc in seconds.
           </p>
